@@ -78,9 +78,9 @@ def _user_inherent_info(user_id):
     # mongo_user['name'],
     time_diff = time.time() - time.mktime(time.strptime(mongo_user['create_time'], '%Y-%m-%d %H:%M:%S'))
     # channel_dict = {'appstore':1, 'yingyongbao':2, 'wandoujia':3, 'baidu':4, 'huawei':5, 'official':6, 'meizu':7, 'xiaomi':8, 'sanxing':9}
-    user_info = np.array([time_diff, channel_dict.get(mongo_user.get('channel', 'appstore'), 0), mongo_user.get('like_count', 0)])
+    user_info = np.array([[time_diff, channel_dict.get(mongo_user.get('channel', 'appstore'), 0), mongo_user.get('like_count', 0)]])
     user_info = user_info.astype('float32')
-    logging.info('user_info:')
+    logging.info('user_info %s:' % str(user_info.shape))
     logging.info(user_info)
     return user_info, mongo_user.get('goodses', [])
 
@@ -98,8 +98,8 @@ def _user_recent_view(user_id, view_time=None):
     miss_line = 100 - user_view_detail.shape[0]
     if miss_line:
         user_view_detail = np.vstack((user_view_detail, np.zeros((miss_line, 8))))
-    user_view_detail = user_view_detail.astype('float32').reshape(100*8)
-    logging.info('user_view_detail:')
+    user_view_detail = user_view_detail.astype('float32').reshape(1, 100*8)
+    logging.info('user_view_detail %s:' % str(user_view_detail.shape))
     logging.info(user_view_detail)
     return user_view_detail
 
@@ -117,11 +117,11 @@ def _goods_train_data(goods):
     else:
         mongo_goods = goods
     if mongo_goods:
-        goods_info = np.array([mongo_goods['list_price'], mongo_goods['currency'], mongo_goods['current_price'],
+        goods_info = np.array([[mongo_goods['list_price'], mongo_goods['currency'], mongo_goods['current_price'],
             mongo_goods['discount'], gender_dict.get(mongo_goods['gender'], 0), mongo_goods['cny_price'],
-            mongo_goods['original_site_id'], mongo_goods['product_type_id'], mongo_goods['category_id'], mongo_goods['brand_id']])
+            mongo_goods['original_site_id'], mongo_goods['product_type_id'], mongo_goods['category_id'], mongo_goods['brand_id']]])
         goods_info = goods_info.astype('float32')
-        logging.info('goods_info:')
+        logging.info('goods_info %s:' % str(goods_info.shape))
         logging.info(goods_info)
 
         goods_desc_vector_org = kp_text.one_hot(mongo_goods['desc'].encode('utf-8'), 512)
@@ -132,12 +132,12 @@ def _goods_train_data(goods):
         goods_title_vector = goods_title_vector_cut[0]
         goods_desc = np.hstack((goods_desc_vector, goods_title_vector))
         goods_desc = goods_desc.astype('float32')
-        logging.info('goods_desc:')
+        logging.info('goods_desc %s:' % str(goods_desc.shape))
         logging.info(goods_desc)
 
         goods_image = _url_to_image(mongo_goods['cover'])
         goods_image = goods_image.astype('float32')
-        logging.info('goods_image')
+        logging.info('goods_image %s:' % str(goods_image.shape))
         logging.info(goods_image)
         return goods_info, goods_desc, goods_image
     else:
