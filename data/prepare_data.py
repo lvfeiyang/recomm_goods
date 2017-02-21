@@ -10,7 +10,7 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from urllib import quote_plus, urlopen
 from elasticsearch import Elasticsearch
-from keras.utils import kp_utils
+from keras.utils import np_utils
 from keras.preprocessing import text as kp_text, image as kp_image, sequence as kp_sequence
 
 def _connect_mysql(db):
@@ -143,7 +143,7 @@ def _goods_train_data(goods):
         raise UserWarning('cant find goods: %s' % goods)
 
 def _num_2_class(num):
-    return kp_utils.to_categorical([num], 3)
+    return np_utils.to_categorical([num], 3)
 
 def get_activity_users(no_order=False):
     user_ids = set()
