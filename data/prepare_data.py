@@ -55,7 +55,7 @@ def _get_site_map():
 gender_dict = {'women':1, 'men':2, 'boys':3, 'girls':4}
 def _map_user_view(hits):
     hits_source = hits['_source']
-    brand_id = _get_brand_map().get(hits_source['brand_name'], 0)#[hits_source['brand_name']]
+    brand_id = _get_brand_map().get(hits_source['brand_name'].encode('utf-8'), 0) #[hits_source['brand_name']]
     site_id = _get_site_map().get(hits_source['site'], 0)
     source_code = int(hits_source['sourceCode']) if hits_source['sourceCode'] else 0
     return [brand_id, site_id, hits_source['cny_price'], gender_dict.get(hits_source['gender'], 0), hits_source['discount'], hits_source['category_id'], hits_source['product_type_id'], source_code]
@@ -134,7 +134,7 @@ def _goods_train_data(goods):
         logging.info(goods_desc)
 
         goods_image = _url_to_image(mongo_goods['cover'])
-        goods_image = goods_image.astype('float32')
+        goods_image = goods_image.astype('float32').reshape((1,)+goods_image.shape)
         logging.info('goods_image %s:' % str(goods_image.shape))
         logging.info(goods_image)
         return goods_info, goods_desc, goods_image
