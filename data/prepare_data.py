@@ -125,11 +125,9 @@ def _goods_train_data(goods):
         logging.info(goods_info)
 
         goods_desc_vector_org = kp_text.one_hot(mongo_goods['desc'].encode('utf-8'), 512)
-        goods_desc_vector_cut = kp_sequence.pad_sequences([goods_desc_vector_org], maxlen=100, padding='post', truncating='post')
-        goods_desc_vector = goods_desc_vector_cut[0]
+        goods_desc_vector = kp_sequence.pad_sequences([goods_desc_vector_org], maxlen=100, padding='post', truncating='post') #goods_desc_vector_cut
         goods_title_vector_org = kp_text.one_hot(mongo_goods['title'].encode('utf-8'), 512)
-        goods_title_vector_cut = kp_sequence.pad_sequences([goods_title_vector_org], maxlen=20, padding='post', truncating='post')
-        goods_title_vector = goods_title_vector_cut[0]
+        goods_title_vector = kp_sequence.pad_sequences([goods_title_vector_org], maxlen=20, padding='post', truncating='post') #goods_title_vector_cut
         goods_desc = np.hstack((goods_desc_vector, goods_title_vector))
         goods_desc = goods_desc.astype('float32')
         logging.info('goods_desc %s:' % str(goods_desc.shape))
