@@ -82,7 +82,7 @@ def _user_inherent_info(user_id):
     user_info = user_info.astype('float32')
     logging.info('user_info:')
     logging.info(user_info)
-    return user_info
+    return user_info, mongo_user.get('goodses', [])
 
 def _user_recent_view(user_id, view_time=None):
     if view_time is None:
@@ -184,13 +184,13 @@ def get_activity_users(no_order=False):
 
 channel_dict = {'appstore':1, 'yingyongbao':2, 'wandoujia':3, 'baidu':4, 'huawei':5, 'official':6, 'meizu':7, 'xiaomi':8, 'sanxing':9}
 def user_train_data(user_id):
-    user_info = _user_inherent_info(user_id)
+    user_info, collection_goodses = _user_inherent_info(user_id)
 
     # low_goods_ids = set()
     # middle_goods_ids = set(mongo_user['goodses'])
     # high_goods_ids = set()
     user_view_detail = _user_recent_view(user_id)
-    for collect_goods in set(mongo_user['goodses']):
+    for collect_goods in set(collection_goodses):
         goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
         yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], 1
 
@@ -220,7 +220,7 @@ def user_train_data(user_id):
         connection.close()
 
 def user_predict_data(user_id):
-    user_info = _user_inherent_info(user_id)
+    user_info, _ = _user_inherent_info(user_id)
     user_view_detail = _user_recent_view(user_id)
 
     client = _connect_mongodb()
