@@ -10,6 +10,7 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from urllib import quote_plus, urlopen
 from elasticsearch import Elasticsearch
+from keras.utils import kp_utils
 from keras.preprocessing import text as kp_text, image as kp_image, sequence as kp_sequence
 
 def _connect_mysql(db):
@@ -141,6 +142,9 @@ def _goods_train_data(goods):
     else:
         raise UserWarning('cant find goods: %s' % goods)
 
+def _num_2_class(num):
+    return kp_utils.to_categorical([num], 3)
+
 def get_activity_users(no_order=False):
     user_ids = set()
 
@@ -190,7 +194,7 @@ def user_train_data(user_id):
     user_view_detail = _user_recent_view(user_id)
     for collect_goods in set(collection_goodses):
         goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
-        yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], 1
+        yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
 
     connection = _connect_mysql('super_mammy_shop')
     try:
@@ -201,9 +205,9 @@ def user_train_data(user_id):
             for res in results:
                 user_view_detail = _user_recent_view(user_id, res[1])
                 goods_info, goods_desc, goods_image = _goods_train_data(res[0])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], 1
+                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
                 goods_info, goods_desc, goods_image = _no_view_goods(res[1])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], 0
+                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
 
             sql = "SELECT `goods_id`,`create_time` FROM `order_goods` WHERE `user_id`=%s"
             cursor.execute(sql, (user_id,))
@@ -211,9 +215,9 @@ def user_train_data(user_id):
             for res in results:
                 user_view_detail = _user_recent_view(user_id, res[1])
                 goods_info, goods_desc, goods_image = _goods_train_data(res[0])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], 2
+                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(2)
                 goods_info, goods_desc, goods_image = _no_view_goods(res[1])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], 0
+                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
     finally:
         connection.close()
 
