@@ -194,8 +194,12 @@ def user_train_data(user_id):
     # high_goods_ids = set()
     user_view_detail = _user_recent_view(user_id)
     for collect_goods in set(collection_goodses):
-        goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
-        yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
+        try:
+            goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
+            yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
+        except Exception as e:
+            logging.error("%s bad train data: %s" % (collect_goods, e))
+            continue
 
     connection = _connect_mysql('super_mammy_shop')
     try:
@@ -204,21 +208,29 @@ def user_train_data(user_id):
             cursor.execute(sql, (user_id,1))
             results = cursor.fetchall()
             for res in results:
-                user_view_detail = _user_recent_view(user_id, res[1])
-                goods_info, goods_desc, goods_image = _goods_train_data(res[0])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
-                goods_info, goods_desc, goods_image = _no_view_goods(res[1])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
+                try:
+                    user_view_detail = _user_recent_view(user_id, res[1])
+                    goods_info, goods_desc, goods_image = _goods_train_data(res[0])
+                    yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
+                    goods_info, goods_desc, goods_image = _no_view_goods(res[1])
+                    yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
+                except Exception as e:
+                    logging.error("%s bad train data: %s" % (res[0], e))
+                    continue
 
             sql = "SELECT `goods_id`,`create_time` FROM `order_goods` WHERE `user_id`=%s"
             cursor.execute(sql, (user_id,))
             results = cursor.fetchall()
             for res in results:
-                user_view_detail = _user_recent_view(user_id, res[1])
-                goods_info, goods_desc, goods_image = _goods_train_data(res[0])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(2)
-                goods_info, goods_desc, goods_image = _no_view_goods(res[1])
-                yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
+                try:
+                    user_view_detail = _user_recent_view(user_id, res[1])
+                    goods_info, goods_desc, goods_image = _goods_train_data(res[0])
+                    yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(2)
+                    goods_info, goods_desc, goods_image = _no_view_goods(res[1])
+                    yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
+                except Exception as e:
+                    logging.error("%s bad train data: %s" % (res[0], e))
+                    continue
     finally:
         connection.close()
 
