@@ -82,8 +82,8 @@ def _user_inherent_info(user_id):
     # channel_dict = {'appstore':1, 'yingyongbao':2, 'wandoujia':3, 'baidu':4, 'huawei':5, 'official':6, 'meizu':7, 'xiaomi':8, 'sanxing':9}
     user_info = np.array([[time_diff, channel_dict.get(mongo_user.get('channel', 'appstore'), 0), mongo_user.get('like_count', 0)]])
     user_info = user_info.astype('float32')
-    logging.info('user_info %s:' % str(user_info.shape))
-    logging.info(user_info)
+    logging.debug('user_info %s:' % str(user_info.shape))
+    logging.debug(user_info)
     return user_info, mongo_user.get('goodses', [])
 
 def _user_recent_view(user_id, view_time=None):
@@ -101,8 +101,8 @@ def _user_recent_view(user_id, view_time=None):
     if miss_line:
         user_view_detail = np.vstack((user_view_detail, np.zeros((miss_line, 8))))
     user_view_detail = user_view_detail.astype('float32').reshape(1, 100*8)
-    logging.info('user_view_detail %s:' % str(user_view_detail.shape))
-    logging.info(user_view_detail)
+    logging.debug('user_view_detail %s:' % str(user_view_detail.shape))
+    logging.debug(user_view_detail)
     return user_view_detail
 
 def _url_to_image(url):
@@ -123,8 +123,8 @@ def _goods_train_data(goods):
             mongo_goods['discount'], gender_dict.get(mongo_goods['gender'], 0), mongo_goods['cny_price'],
             mongo_goods['original_site_id'], mongo_goods['product_type_id'], mongo_goods['category_id'], mongo_goods['brand_id']]])
         goods_info = goods_info.astype('float32')
-        logging.info('goods_info %s:' % str(goods_info.shape))
-        logging.info(goods_info)
+        logging.debug('goods_info %s:' % str(goods_info.shape))
+        logging.debug(goods_info)
 
         goods_desc_vector_org = kp_text.one_hot(mongo_goods['desc'].encode('utf-8'), 512)
         goods_desc_vector = kp_sequence.pad_sequences([goods_desc_vector_org], maxlen=100, padding='post', truncating='post') #goods_desc_vector_cut
@@ -132,13 +132,13 @@ def _goods_train_data(goods):
         goods_title_vector = kp_sequence.pad_sequences([goods_title_vector_org], maxlen=20, padding='post', truncating='post') #goods_title_vector_cut
         goods_desc = np.hstack((goods_desc_vector, goods_title_vector))
         goods_desc = goods_desc.astype('float32')
-        logging.info('goods_desc %s:' % str(goods_desc.shape))
-        logging.info(goods_desc)
+        logging.debug('goods_desc %s:' % str(goods_desc.shape))
+        logging.debug(goods_desc)
 
         goods_image = _url_to_image(mongo_goods['cover'])
         goods_image = goods_image.astype('float32').reshape((1,)+goods_image.shape)
-        logging.info('goods_image %s:' % str(goods_image.shape))
-        logging.info(goods_image)
+        logging.debug('goods_image %s:' % str(goods_image.shape))
+        logging.debug(goods_image)
         return goods_info, goods_desc, goods_image
     else:
         raise UserWarning('cant find goods: %s' % goods)
@@ -195,6 +195,7 @@ def user_train_data(user_id):
     user_view_detail = _user_recent_view(user_id)
     for collect_goods in set(collection_goodses):
         try:
+            logging.info('user collection: %s user goods %s' % (user_id, collect_goods))
             goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
             yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
         except Exception as e:
@@ -224,6 +225,7 @@ def user_train_data(user_id):
             results = cursor.fetchall()
             for res in results:
                 try:
+                    logging.info('user order: %s user goods %s' % (user_id, res[0]))
                     user_view_detail = _user_recent_view(user_id, res[1])
                     goods_info, goods_desc, goods_image = _goods_train_data(res[0])
                     yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(2)
