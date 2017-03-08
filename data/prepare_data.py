@@ -219,7 +219,12 @@ def user_train_data(user_id):
                 except Exception as e:
                     logging.error("%s bad train data: %s" % (res[0], e))
                     continue
+    finally:
+        connection.close()
 
+    connection = _connect_mysql('super_mammy_shop')
+    try:
+        with connection.cursor() as cursor:
             sql = "SELECT `goods_id`,`create_time` FROM `order_goods` WHERE `user_id`=%s"
             cursor.execute(sql, (user_id,))
             results = cursor.fetchall()
