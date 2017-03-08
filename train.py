@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import logging
+from logging.config import fileConfig
 from data import prepare_data, prepare_model
+
+fileConfig('logging_config.ini')
 
 def tran_data_generator():
     for act_user in prepare_data.get_activity_users():

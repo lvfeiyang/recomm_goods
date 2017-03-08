@@ -209,6 +209,7 @@ def user_train_data(user_id):
             results = cursor.fetchall()
             for res in results:
                 try:
+                    logging.info('shop cart: %s user goods %s' % (user_id, res[0]))
                     user_view_detail = _user_recent_view(user_id, res[1])
                     goods_info, goods_desc, goods_image = _goods_train_data(res[0])
                     yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
