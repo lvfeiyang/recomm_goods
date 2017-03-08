@@ -195,7 +195,7 @@ def user_train_data(user_id):
     user_view_detail = _user_recent_view(user_id)
     for collect_goods in set(collection_goodses):
         try:
-            logging.info('user collection: %s user goods %s' % (user_id, collect_goods))
+            logging.info('user collection: %07s user goods %s' % (user_id, collect_goods))
             goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
             yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
         except Exception as e:
@@ -210,7 +210,7 @@ def user_train_data(user_id):
             results = cursor.fetchall()
             for res in results:
                 try:
-                    logging.info('shop cart: %s user goods %s' % (user_id, res[0]))
+                    logging.info('shop cart: %07s user goods %s' % (user_id, res[0]))
                     user_view_detail = _user_recent_view(user_id, res[1])
                     goods_info, goods_desc, goods_image = _goods_train_data(res[0])
                     yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
@@ -225,12 +225,12 @@ def user_train_data(user_id):
     connection = _connect_mysql('super_mammy_shop')
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT `goods_id`,`create_time` FROM `order_goods` WHERE `user_id`=%s"
+            sql = "SELECT `goods_id`,`create_time` FROM `order_goods` WHERE `user_id`=%s ORDER BY `create_time` DESC"
             cursor.execute(sql, (user_id,))
             results = cursor.fetchall()
             for res in results:
                 try:
-                    logging.info('user order: %s user goods %s' % (user_id, res[0]))
+                    logging.info('user order: %07s user goods %s' % (user_id, res[0]))
                     user_view_detail = _user_recent_view(user_id, res[1])
                     goods_info, goods_desc, goods_image = _goods_train_data(res[0])
                     yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(2)
