@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import gc
 import logging
 from logging.config import fileConfig
 from data import prepare_data, prepare_model
@@ -12,6 +13,8 @@ def tran_data_generator():
         except Exception as e:
             logging.error("%s user have bad train data: %s" % (act_user, e))
             continue
+        finally:
+            gc.collect()
 
 recomm_model = prepare_model.generate_recommend_model()
 recomm_model.fit_generator(tran_data_generator(), samples_per_epoch=200, nb_epoch=50)
