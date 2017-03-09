@@ -12,7 +12,7 @@ def tran_data_generator():
             for one_user_data in prepare_data.user_train_data(act_user):
                 yield one_user_data
         except Exception as e:
-            logging.error("%s user have bad train data: %s" % (act_user, e))
+            logging.exception("%s user have bad train data: %s" % (act_user, e))
             continue
         finally:
             gc.collect()

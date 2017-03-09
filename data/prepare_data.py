@@ -98,7 +98,7 @@ def _user_recent_view(user_id, view_time=None):
         }}},"sort":{"@timestamp":{"order":"desc"}},"size":100}
     res = es.search(index='logstash-action', doc_type='goods-detail', body=body)
     user_view_detail = np.array(map(_map_user_view, res['hits']['hits']))
-    if not user_view_detail:
+    if not user_view_detail.shape[0]:
         user_view_detail = np.zeros((100, 8))
     miss_line = 100 - user_view_detail.shape[0]
     if miss_line:
