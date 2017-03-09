@@ -13,20 +13,13 @@ from elasticsearch import Elasticsearch
 from keras.utils import np_utils
 from keras.preprocessing import text as kp_text, image as kp_image, sequence as kp_sequence
 
-mysql_link = None
 def _connect_mysql(db):
-    global mysql_link
-    if not mysql_link:
-        mysql_link = pymysql.connect(host='10.66.131.23', user='root', password='yiya1504!!', db=db)
-    return mysql_link
+    return pymysql.connect(host='10.66.131.23', user='root', password='yiya1504!!', db=db)
 
-mongodb_link = None
 def _connect_mongodb():
-    global mongodb_link
-    if not mongodb_link:
-        url = "mongodb://%s:%s@%s" % (quote_plus('yiya'), quote_plus('yiya1504!!'), '10.105.18.199:27017')
-        mongodb_link = MongoClient(url) #'mongodb://localhost:27017/'
-    return mongodb_link
+    url = "mongodb://%s:%s@%s" % (quote_plus('yiya'), quote_plus('yiya1504!!'), '10.105.18.199:27017')
+    return MongoClient(url)
+    # client = MongoClient(url)#'mongodb://localhost:27017/')
 
 mysql_brand_map = {}
 def _get_brand_map():
