@@ -58,12 +58,8 @@ def _map_user_view(hits):
     hits_source = hits['_source']
     brand_id = _get_brand_map().get(hits_source['brand_name'].encode('utf-8'), 0) #[hits_source['brand_name']]
     site_id = _get_site_map().get(hits_source['site'], 0)
-    try:
-        source_code = hits_source.get('sourceCode', 0)
-        source_code = int(source_code) if source_code else 0
-    except ValueError as e:
-        logging.debug('user view source code(%s): %s' % (hits_source.get('sourceCode', ''), e))
-        source_code = 0
+    source_code = hits_source.get('sourceCode', 0)
+    source_code = int(source_code) if source_code else 0
     # source_code = int(source_code) if source_code else 0
     return [brand_id, site_id, hits_source['cny_price'], gender_dict.get(hits_source['gender'], 0), hits_source['discount'], hits_source['category_id'], hits_source['product_type_id'], source_code]
 
@@ -204,7 +200,7 @@ def user_train_data(user_id):
             goods_info, goods_desc, goods_image = _goods_train_data(collect_goods)
             yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(1)
         except Exception as e:
-            logging.error("%s bad train data: %s" % (collect_goods, e))
+            logging.exception("%s bad train data: %s" % (collect_goods, e))
             continue
 
     connection = _connect_mysql('super_mammy_shop')
@@ -222,7 +218,7 @@ def user_train_data(user_id):
                     goods_info, goods_desc, goods_image = _no_view_goods(res[1])
                     yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
                 except Exception as e:
-                    logging.error("%s bad train data: %s" % (res[0], e))
+                    logging.exception("%s bad train data: %s" % (res[0], e))
                     continue
     finally:
         connection.close()
@@ -242,7 +238,7 @@ def user_train_data(user_id):
                     goods_info, goods_desc, goods_image = _no_view_goods(res[1])
                     yield [user_info, user_view_detail, goods_info, goods_desc, goods_image], _num_2_class(0)
                 except Exception as e:
-                    logging.error("%s bad train data: %s" % (res[0], e))
+                    logging.exception("%s bad train data: %s" % (res[0], e))
                     continue
     finally:
         connection.close()
