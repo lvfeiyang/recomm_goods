@@ -66,7 +66,7 @@ def _map_user_view(hits):
 def _no_view_goods(relation_time):
     relation_time = relation_time.strftime("%y%m%d")
     rand = random.randint(100, 999)
-    time_rand = relation_time + rand
+    time_rand = relation_time + str(rand)
     client = _connect_mongodb()
     mongo_goods = client.shiji_shop.goods.find_one({'status':3, 'rand_order':{'$gte':time_rand}})
     if not mongo_goods:
