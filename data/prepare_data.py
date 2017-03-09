@@ -58,8 +58,12 @@ def _map_user_view(hits):
     hits_source = hits['_source']
     brand_id = _get_brand_map().get(hits_source['brand_name'].encode('utf-8'), 0) #[hits_source['brand_name']]
     site_id = _get_site_map().get(hits_source['site'], 0)
-    source_code = hits_source.get('sourceCode', 0)
-    source_code = int(source_code) if source_code else 0
+    try:
+        source_code = int(hits_source.get('sourceCode', 0))
+    except ValueError as e:
+        logging.debug('user view source code(%s): %s' % (hits_source.get('sourceCode', ''), e))
+        source_code = 0
+    # source_code = int(source_code) if source_code else 0
     return [brand_id, site_id, hits_source['cny_price'], gender_dict.get(hits_source['gender'], 0), hits_source['discount'], hits_source['category_id'], hits_source['product_type_id'], source_code]
 
 def _no_view_goods(relation_time):
